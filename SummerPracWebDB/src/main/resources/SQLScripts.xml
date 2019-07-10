@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scripts>
+    <table name = "account">
+        <operation name="select">
+            SELECT email, password_cpt, first_name, last_name, date_birth, gender, avatar_name, account_id
+            FROM account
+            WHERE email = ?;
+        </operation>
+        <operation name="getall">
+            SELECT email, password_cpt, first_name, last_name, date_birth, gender, avatar_name
+            FROM account
+            ORDER BY email;
+        </operation>
+        <operation name="update">
+            UPDATE account
+            SET email = ?, password_cpt = crypt(?, gen_salt('bf')), first_name = ?, last_name = ?, date_birth = ?, gender = ?, avatar_name = ?
+            WHERE email = ?;
+        </operation>
+        <operation name="insert">
+            INSERT INTO account (email, password_cpt, first_name, last_name, date_birth, gender, avatar_name)
+            VALUES (?, crypt(?, gen_salt('bf')), ?, ?, ?, ?, ?);
+        </operation>
+        <operation name="delete">
+            DELETE FROM account
+            WHERE email = ?;
+        </operation>
+    </table>
+    <table name="application_class">
+        <operation name="select">
+            SELECT ac.class_name, acp.class_name, ac.class_id
+            FROM application_class ac
+            LEFT JOIN application_class acp ON ac.parent_class_id = acp.class_id
+            WHERE ac.class_name = ?;
+        </operation>
+        <operation name="getall">
+            SELECT ac.class_name, acp.class_name
+            FROM application_class ac
+            LEFT JOIN application_class acp ON ac.parent_class_id = acp.class_id
+            ORDER BY ac.class_name;
+        </operation>
+        <operation name="update">
+            UPDATE application_class
+            SET class_name = ?, parent_class_id = ?
+            WHERE class_name = ?;
+        </operation>
+        <operation name="insert">
+            INSERT INTO application_class (class_name, parent_class_id)
+            VALUES (?, ?);
+        </operation>
+        <operation name="delete">
+            DELETE FROM application_class
+            WHERE class_name = ?;
+        </operation>
+    </table>
+    <table name="application_image">
+            <operation name="select">
+                SELECT a_img.image_name, soft.title, a_img.image_id
+                FROM application_image a_img
+                LEFT JOIN software soft ON a_img.software_id = soft.software_id
+                WHERE a_img.image_name = ?;
+            </operation>
+            <operation name="getall">
+                SELECT a_img.image_name, soft.title, a_img.image_id
+                FROM application_image a_img
+                LEFT JOIN software soft ON a_img.software_id = soft.software_id
+                ORDER BY soft.title;
+            </operation>
+            <operation name="update">
+                UPDATE application_image
+                SET image_name = ?, software_id = ?
+                WHERE image_name = ?;
+            </operation>
+            <operation name="insert">
+                INSERT INTO application_image (software_id, image_name)
+                VALUES (?, ?);
+            </operation>
+            <operation name="delete">
+                DELETE FROM application_image
+                WHERE image_name = ?;
+            </operation>
+    </table>
+    <table name="digital_copy">
+        <operation name="select">
+            SELECT soft.title, sub_q.email, sub_q.cash_voucher_first, sub_q.cash_voucher_last, dc.product_key, dc.copy_id
+            FROM digital_copy dc
+            LEFT JOIN software soft
+            ON dc.software_id = soft.software_id
+            LEFT JOIN   (SELECT pur_i.item_id, pur.cash_voucher_first , pur.cash_voucher_last, acc.email
+                        FROM purchase_item pur_i
+                        LEFT JOIN account acc ON pur_i.account_id = acc.account_id
+                        LEFT JOIN purchase pur ON pur_i.purchase_id = pur.purchase_id) sub_q
+            ON dc.item_id = sub_q.item_id
+            WHERE soft.title = ? AND dc.product_key = ?;
+        </operation>
+        <operation name="getall">
+            SELECT soft.title, sub_q.email, sub_q.cash_voucher_first, sub_q.cash_voucher_last, dc.product_key, dc.copy_id
+            FROM digital_copy dc
+            LEFT JOIN software soft
+            ON dc.software_id = soft.software_id
+            LEFT JOIN   (SELECT pur_i.item_id, pur.cash_voucher_first , pur.cash_voucher_last, acc.email
+                        FROM purchase_item pur_i
+                        LEFT JOIN account acc ON pur_i.account_id = acc.account_id
+                        LEFT JOIN purchase pur ON pur_i.purchase_id = pur.purchase_id) sub_q
+            ON dc.item_id = sub_q.item_id
+            ORDER BY soft.title;
+        </operation>
+        <operation name="update">
+            UPDATE digital_copy
+            SET software_id = ?, item_id = ?, product_key = ?
+            WHERE software_id = ? AND product_key = ?
+        </operation>
+        <operation name="insert">
+            INSERT INTO digital_copy (software_id, item_id, product_key)
+            VALUES (?,?,?);
+        </operation>
+        <operation name="delete">
+            DELETE FROM digital_copy
+            WHERE software_id = ? AND product_key = ?;
+        </operation>
+    </table>
+    <table name="feedback">
+        <operation name="select">
+            SELECT acc.email, soft.title, fb.message, fb.date_writed, fb.feedback_id
+            FROM feedback fb
+            LEFT JOIN account acc ON fb.account_id = acc.account_id
+            LEFT JOIN software soft ON fb.software_id = soft.software_id
+            WHERE acc.email = ? AND soft.title = ?;
+        </operation>
+        <operation name="getall">
+            SELECT acc.email, soft.title, fb.message, fb.date_writed
+            FROM feedback fb
+            LEFT JOIN account acc ON fb.account_id = acc.account_id
+            LEFT JOIN software soft ON fb.software_id = soft.software_id
+            ORDER BY soft.title;
+        </operation>
+        <operation name="update">
+            UPDATE feedback
+            SET account_id = ?, software_id = ?, message = ?, date_writed = ?
+            WHERE account_id = ?, software_id = ?;
+        </operation>
+        <operation name="insert">
+            INSERT INTO feedback (account_id, software_id, message, date_writed)
+            VALUES (?,?,?,?);
+        </operation>
+        <operation name="delete">
+            DELETE FROM feedback
+            WHERE account_id = ? AND software_id = ?;
+        </operation>
+    </table>
+    <table name="publisher">
+        <operation name="select">
+            SELECT publisher_name, publisher_id
+            FROM publisher
+            WHERE publisher_name = ?;
+        </operation>
+        <operation name="getall">
+            SELECT publisher_name, publisher_id
+            FROM publisher
+            ORDER BY publisher_name;
+        </operation>
+        <operation name="update">
+            UPDATE publisher
+            SET publisher_name = ?
+            WHERE publisher_name = ?;
+        </operation>
+        <operation name="insert">
+            INSERT INTO publisher (publisher_name)
+            VALUES (?);
+        </operation>
+        <operation name="delete">
+            DELETE FROM publisher
+            WHERE publisher_name = ?;
+        </operation>
+    </table>
+    <table name="purchase">
+        <operation name="select">
+            SELECT pur.cash_voucher_first, pur.cash_voucher_last, acc.email, pur.payment_datetime, pur.payment_amount,
+            pur.purchase_id
+            FROM purchase pur
+            LEFT JOIN account acc ON pur.account_id = pur.account_id
+            WHERE pur.cash_voucher_first = ? AND pur.cash_voucher_first = ?;
+        </operation>
+        <operation name="getall">
+            SELECT pur.cash_voucher_first, pur.cash_voucher_last, acc.email, pur.payment_datetime, pur.payment_amount
+            FROM purchase pur
+            LEFT JOIN account acc ON pur.account_id = pur.account_id
+            ORDER BY acc_email;
+        </operation>
+        <operation name="update">
+            UPDATE purchase
+            SET cash_voucher_first = ?, cash_voucher_last = ?, account_id = ?, payment_datetime = ?,
+            payment_amount = ?::money
+            WHERE cash_voucher_first = ? AND cash_voucher_last = ?;
+        </operation>
+        <operation name="insert">
+            INSERT INTO purchase (cash_voucher_first, cash_voucher_last, account_id, payment_datetime, payment_amount)
+            VALUES (?,?,?,?,?::money);
+        </operation>
+        <operation name="delete">
+            DELETE FROM purchase
+            WHERE cash_voucher_first = ? AND cash_voucher_last = ?;
+        </operation>
+    </table>
+    <table name="purchase_item">
+        <operation name="select">
+            SELECT acc.email, pur.cash_voucher_first, pur.cash_voucher_last, pur_i.copies_count,
+            pur_i.price_copy, pur_i.item_id
+            FROM purchase_item pur_i
+            LEFT JOIN account acc ON pur_i.account_id = acc.account_id
+            LEFT JOIN purchase pur ON pur_i.purchase_id = pur.purchase_id
+            WHERE acc.email = ? AND pur.cash_voucher_first = ? AND pur.cash_voucher_last = ?;
+        </operation>
+        <operation name="getall">
+            SELECT acc.email, pur.cash_voucher_first, pur.cash_voucher_last, pur_i.copies_count,
+            pur_i.price_copy
+            FROM purchase_item pur_i
+            LEFT JOIN account acc ON pur_i.account_id = acc.account_id
+            LEFT JOIN purchase pur ON pur_i.purchase_id = pur.purchase_id
+            ORDER BY acc.email;
+        </operation>
+        <operation name="update">
+            UPDATE purchase_item
+            SET account_id = ?, purchase_id = ?, copies_count = ?, price_copy = ?::money
+            WHERE account_id = ?, purchase_id = ?;
+        </operation>
+        <operation name="insert">
+            INSERT INTO purchase_item (account_id, purchase_id, copies_count, price_copy)
+            VALUES (?,?,?,?::money);
+        </operation>
+        <operation name="delete">
+            DELETE FROM purchase_item
+            WHERE account_id = ?, purchase_id = ?;
+        </operation>
+    </table>
+    <table name="software">
+        <operation name="select">
+            SELECT app_c.class_name, pub.publisher_name, soft.title, soft.system_req, soft.price, soft.discount_percent,
+            soft.software_id
+            FROM software soft
+            LEFT JOIN application_class app_c ON soft.class_id = app_c.class_id
+            LEFT JOIN publisher pub ON soft.publisher_id = pub.publisher_id
+            WHERE soft.title = ?;
+        </operation>
+        <operation name="getall">
+            SELECT app_c.class_name, pub.publisher_name, soft.title, soft.system_req, soft.price, soft.discount_percent,
+            soft.software_id
+            FROM software soft
+            LEFT JOIN application_class app_c ON soft.class_id = app_c.class_id
+            LEFT JOIN publisher pub ON soft.publisher_id = pub.publisher_id
+            ORDER BY soft.title;
+        </operation>
+        <operation name="update">
+            UPDATE software
+            SET class_id = ?, publisher_id = ?, title = ?, system_req = ?, price = ?, discount_percent = ?
+            WHERE title = ?;
+        </operation>
+        <operation name="insert">
+            INSERT INTO software (class_id, publisher_id, title, system_req, price, discount_percent)
+            VALUES (?,?,?,?,?,?);
+        </operation>
+        <operation name="delete">
+            DELETE FROM software
+            WHERE title = ?;
+        </operation>
+    </table>
+</scripts>

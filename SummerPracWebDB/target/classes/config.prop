@@ -1,0 +1,6 @@
+#2019-07-10T19:27:05.867
+#Wed Jul 10 19:27:05 SAMT 2019
+script_file=SQLScripts.xml
+url=jdbc\:postgresql\://localhost\:5432/app_software_store
+password=ADMINS
+username=MSI
